@@ -8,13 +8,15 @@ class CameraView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
         title: const Center(
           child: Text(
             "Face detector",
-            style: TextStyle(fontWeight: FontWeight.w500),
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20.0),
           ),
         ),
         bottom: PreferredSize(
@@ -34,103 +36,109 @@ class CameraView extends StatelessWidget {
       body: GetBuilder<ScanController>(
         init: ScanController(),
         builder: (controller) {
-          return Column(
+          return Stack(
             children: [
-              Expanded(
-                child: controller.isCameraInitialized.value
-                    ? Center(
+              controller.isCameraInitialized.value
+                  ? Align(
+                      alignment: Alignment.topCenter,
                       child: ClipRRect(
                         child: SizedOverflowBox(
-                          size: const Size(300, 300), // aspect is 1:1
-                          alignment: Alignment.center,
+                          size:
+                              Size(screenWidth, screenHeight), // aspect is 1:1
+                          alignment: Alignment.topCenter,
                           child: CameraPreview(controller.cameraController),
                         ),
                       ),
                     )
-                    : const Image(image: AssetImage('assets/face-id.png')),
-              ),
-              SizedBox(
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    controller.label == "mauricio"
-                        ? Column(
+                  : Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: 682,
+                      color: Colors.black,
+                    ),
+              controller.label == "mauricio"
+                  ? Center(
+                      child: Container(
+                        color: Colors.transparent,
+                        padding: const EdgeInsets.all(10.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(
-                                width: double.infinity,
-                                child: Center(
-                                  child: Text(
-                                    "Persona detectada: ${controller.label}\n"
-                                    "Profesion: estudiante\n"
-                                    "Edad: 20 años\n"
-                                    "Altura: 1.70 m\n",
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            controller.weatherRequested ?
-                            SizedBox(
-                                width: double.infinity,
-                                child: Center(
-                                  child: Text(
-                                    "La temperatura es ${ controller.weatherRequested ? controller.weather : const CircularProgressIndicator()} °C",
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              )
-                              : const CircularProgressIndicator(),
-                          ],
-                        )
-                        : const SizedBox(
-                            width: double.infinity,
-                            child: Center(
+                            Center(
                               child: Text(
-                                "Persona no detectada",
-                                style: TextStyle(
+                                "Persona detectada: ${controller.label.capitalizeFirst}",
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
-                          ),
-                  ],
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (controller.isCameraInitialized.value) {
-                      controller.stopCamera();
-                      controller.label = "";
-                    } else {
-                      controller.initCamera();
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: controller.isCameraInitialized.value
-                        ? Colors.red
-                        : Colors.blue,
-                  ),
-                  child: Text(controller.isCameraInitialized.value
-                      ? 'Desactivar cámara'
-                      : 'Empezar a detectar'),
-                ),
-              ),
+                            controller.weatherRequested
+                                ? Center(
+                                    child: Text(
+                                      "Temperatura: ${controller.weatherRequested ? controller.weather : const CircularProgressIndicator()} °C",
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                : const CircularProgressIndicator(),
+                          ],
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
             ],
           );
         },
       ),
+      floatingActionButton: Container(
+        width: 100.0,
+        height: 100.0,
+        margin: const EdgeInsets.only(bottom: 70.0),
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.center,
+              child: Container(
+                width: 90.0,
+                height: 90.0,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2.0),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.center,
+              child: SizedBox(
+                width: 70.0,
+                height: 70.0,
+                child: GetBuilder<ScanController>(
+                  init: ScanController(),
+                  builder: (controller) {
+                    return FloatingActionButton(
+                      onPressed: () {
+                        if (controller.isCameraInitialized.value) {
+                          controller.stopCamera();
+                          controller.label = "";
+                        } else {
+                          controller.initCamera();
+                        }
+                      },
+                      backgroundColor: Colors.white,
+                      shape: const CircleBorder(),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

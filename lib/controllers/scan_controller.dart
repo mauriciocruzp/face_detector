@@ -37,7 +37,7 @@ class ScanController extends GetxController {
     if (await Permission.camera.request().isGranted) {
       cameras = await availableCameras();
 
-      cameraController = CameraController(cameras[1], ResolutionPreset.max);
+      cameraController = CameraController(cameras[1], ResolutionPreset.ultraHigh);
 
       await cameraController.initialize().then((value) {
 
